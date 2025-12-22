@@ -4,6 +4,13 @@ import { useFonts } from 'expo-font'
 import { Slot, SplashScreen } from 'expo-router'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
+import {
+  QueryClient,
+  QueryClientProvider
+} from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
+
 import "./global.css"
 
 SplashScreen.preventAutoHideAsync()
@@ -25,9 +32,11 @@ const RootLayout = () => {
   // return <Slot />
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <Slot />
-    </GestureHandlerRootView>
+    <QueryClientProvider client={queryClient}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Slot />
+      </GestureHandlerRootView>
+    </QueryClientProvider>
   );
 }
 
