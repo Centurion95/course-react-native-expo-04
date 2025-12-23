@@ -1,27 +1,16 @@
 import { infraestructuraApi } from "../api/infraestructura-api";
 
-export const loginAction = async () => {
+export const loginAction = async (numero_documento: string, password: string) => {
   try {
-    console.log('trying to login action');
-    const { data } = await infraestructuraApi.get('/search?limit=10');
-    console.log(JSON.stringify(data, null, 2));
+    const { data } = await infraestructuraApi
+      .post(`auth/login`, {
+        numero_documento,
+        password
+      });
     return data;
 
   } catch (error) {
     console.error(error);
-    throw 'Cannot perform login action';
+    throw new Error("Cannot perform loginAction");
   }
 };
-
-// export const loginAction = async (username: string, password: string) => {
-//   // Simulate an API call to authenticate the user
-//   return new Promise<{ success: boolean; token?: string }>((resolve) => {
-//     setTimeout(() => {
-//       if (username === 'admin' && password === 'password') {
-//         resolve({ success: true, token: 'fake-jwt-token' });
-//       } else {
-//         resolve({ success: false });
-//       }
-//     }, 1000);
-//   });
-// };

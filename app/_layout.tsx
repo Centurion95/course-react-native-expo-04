@@ -11,11 +11,13 @@ import {
 
 const queryClient = new QueryClient()
 
+
 import "./global.css"
 
 SplashScreen.preventAutoHideAsync()
 
 const RootLayout = () => {
+
   const [fontsLoaded, error] = useFonts({
     'WorkSans-Black': require('../assets/fonts/WorkSans-Black.ttf'),
     'WorkSans-Light': require('../assets/fonts/WorkSans-Light.ttf'),
@@ -28,6 +30,7 @@ const RootLayout = () => {
   }, [fontsLoaded, error])
 
   if (!fontsLoaded && !error) return null
+
 
   // return <Slot />
 

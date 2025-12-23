@@ -16,6 +16,14 @@ const SettingsScreen = () => {
     )
   }
 
+  if (getAnimalsQuery.isError) {
+    return (
+      <View className='justify-center items-center flex-1'>
+        <Text>Error loading cats.</Text>
+      </View>
+    )
+  }
+
   return (
     <FlatList
       data={getAnimalsQuery.data}

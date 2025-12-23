@@ -8,10 +8,17 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 const HomeScreen = () => {
   const navigation = useNavigation();
 
+  // useEffect(() => {
+  //   const setSecureData = async () => {
+  //     await SecureStore.setItem('myKey', 'myValue');
+  //   };
+  //   setSecureData();
+  // }, []);
+
   const onToggleDrawer = () => {
     navigation.dispatch(DrawerActions.toggleDrawer());
   };
-  
+
   return (
     <SafeAreaView>
       <View className="px-10 mt-5">
@@ -45,8 +52,20 @@ const HomeScreen = () => {
           </CustomButton>
         </Link>
 
-        <CustomButton onPress={onToggleDrawer}>Abrir menú</CustomButton>
+        <CustomButton
+          className="mb-2"
+          onPress={onToggleDrawer}
+        >
+          Abrir menú
+        </CustomButton>
 
+        <CustomButton
+          onPress={() => router.push('/login')}
+          className="mb-2"
+          color="tertiary"
+        >
+          Login
+        </CustomButton>
 
         {/* <Link className="mb-5" href="/products">
           Productos{' '}

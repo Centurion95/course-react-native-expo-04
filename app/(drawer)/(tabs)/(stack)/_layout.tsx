@@ -59,6 +59,12 @@ const StackLayout = () => {
           title: 'Ajustes Pantalla',
         }}
       />
+      <Stack.Screen
+        name="login/index"
+        options={{
+          title: 'Login',
+        }}
+      />
     </Stack>
 
   )

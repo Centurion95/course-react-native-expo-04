@@ -18,6 +18,14 @@ const ProductScreen = () => {
     )
   }
 
+  if (catQuery.isError) {
+    return (
+      <View className='justify-center items-center flex-1'>
+        <Text>Error loading cat details.</Text>
+      </View>
+    )
+  }
+
   return (
     <ScrollView className="px-5 mt-2">
       {cat ? (
