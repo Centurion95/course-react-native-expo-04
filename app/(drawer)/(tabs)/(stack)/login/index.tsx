@@ -13,6 +13,7 @@ const LoginScreen = () => {
   const [token, setToken] = useState<string | null>(null);
   const [persona, setPersona] = useState<any | null>(null);
   const [espacios, setEspacios] = useState<any | null>(null);
+  const [espaciosPartes, setEspaciosPartes] = useState<any | null>(null);
   const [ofertas, setOfertas] = useState<any[]>([]);
 
   const [visibleFiscalizacion, setVisibleFiscalizacion] = useState<number | null>(null);
@@ -76,7 +77,7 @@ const LoginScreen = () => {
   useEffect(() => {
     const fetchToken = async () => {
       try {
-        const { token } = await loginAction('4331001', 'Mec2025!');
+        const { token } = await loginAction('4331001', 'Mec2025*');
         setToken(token);
       } catch (error) {
         console.error('Login error:', error);
@@ -110,6 +111,7 @@ const LoginScreen = () => {
       const data = await getPersonaAction('4331001');
       setPersona(data.persona);
       setEspacios(data.espacios);
+      setEspaciosPartes(data.espacios_partes);
       // setOfertas(data.ofertas);
       setOfertas(data.ofertas_con_fiscalizacion);
       console.log('data:', data);
@@ -194,7 +196,7 @@ const LoginScreen = () => {
             {espacios.map((item: any) => (
               <View key={item.id} style={styles.row}>
                 <Text style={styles.cell}>{item.id}</Text>
-                <Text style={styles.cell}>{item.espacio}</Text>
+                <Text style={styles.cell}>{item.descripcion}</Text>
               </View>
             ))}
           </View>
@@ -318,9 +320,24 @@ const LoginScreen = () => {
 
                       <View style={styles.cell} className='bg-white rounded-md p-2 pb-4 ml-8'>
                         <Text style={{ fontWeight: "bold", fontSize: 18, marginBottom: 4 }}>General</Text>
-                        <Text style={{ fontSize: 18, marginBottom: 4, textAlign: 'center' }}>Planilla de Infraestructura</Text>
+                        <Text style={{ fontSize: 18, marginBottom: 4, textAlign: 'center' }}>Planilla de Infraestructura Educativa</Text>
                         <View style={styles.hr} />
 
+                        {espacios.map((item: any) => (
+                          <View key={item.id} style={styles.row}>
+                            <Text style={styles.cell}>{item.orden}</Text>
+                            <Text style={styles.cell}>{item.descripcion}</Text>
+                          </View>
+                        ))}
+                        
+                        <View style={styles.hr} />
+                        
+                        {espaciosPartes.map((item: any) => (
+                          <View key={item.id} style={styles.row}>
+                            <Text style={styles.cell}>{item.orden}</Text>
+                            <Text style={styles.cell}>{item.parte}</Text>
+                          </View>
+                        ))}
 
                         <Text style={styles.text_title}>1 - Localizacion geografica e identificacion del local escolar</Text>
                         <View className='bg-white rounded-md p-2 pb-4 ml-8'>
@@ -479,7 +496,7 @@ const LoginScreen = () => {
                             </View>
                             <View style={styles.cell}>
                               <TextInput
-                                value={item.nombre_institucion ?? '-'}
+                                value={`${item.establecimiento_id!} - ${item.nombre_institucion!}`}
                                 editable={false}
                                 style={styles.input} />
                             </View>
