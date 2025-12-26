@@ -21,7 +21,6 @@ const LoginScreen = () => {
   const [espaciosPartes, setEspaciosPartes] = useState<any | null>(null);
   const [ofertas, setOfertas] = useState<any[]>([]);
 
-  const [showFilters, setShowFilters] = useState(false);
   const [visibleFiscalizacion, setVisibleFiscalizacion] = useState<number | null>(null);
 
   const toggleFiscalizacion = (id: number) => {
@@ -58,86 +57,19 @@ const LoginScreen = () => {
   const endIndex = startIndex + pageSize;
   const currentData = filteredOfertas.slice(startIndex, endIndex);
 
-  interface Persona {
-    id: number;
-    documento_persona: string;
-    nombre_persona: string;
-    apellido_persona: string;
-    fecha_nacimiento: string;
-    usuario_id: number;
-    email: string;
-    perfil_id: number;
-    rol_id: number;
-  }
 
-  async function testDB(persona: Persona) {
-    console.log('Testing DB insert with persona:', persona);
-
+  async function testDB() {
     const db = SQLite.openDatabaseSync('mydb.db');
-    // db.execAsync(` 
-    //   CREATE TABLE IF NOT EXISTS users ( 
-    //     id INTEGER PRIMARY KEY AUTOINCREMENT, 
-    //     name TEXT, 
-    //     age INT 
-    //   ); 
-    // `);
-    // await db.runAsync('INSERT INTO users (name, age) VALUES (?, ?)', ['Rodrigo', 30]);
+    db.execAsync(` 
+    CREATE TABLE IF NOT EXISTS users ( 
+      id INTEGER PRIMARY KEY AUTOINCREMENT, 
+      name TEXT, 
+      age INT 
+    ); 
+  `);
+    await db.runAsync('INSERT INTO users (name, age) VALUES (?, ?)', ['Rodrigo', 30]);
 
-    await db.runAsync(`
-      CREATE TABLE IF NOT EXISTS personas (
-        id INTEGER PRIMARY KEY NOT NULL,
-        documento_persona TEXT,
-        nombre_persona TEXT,
-        apellido_persona TEXT,
-        fecha_nacimiento TEXT,
-        usuario_id INTEGER,
-        email TEXT,
-        perfil_id INTEGER,
-        rol_id INTEGER
-      );
-    `);
-
-    const row = await db.getFirstAsync<{ id: number }>(
-      "SELECT id FROM personas WHERE id = ?;", [persona.id]
-    );
-
-    if (row) {
-      console.log(`El id ${persona.id} ya existe en la tabla.`);
-      return
-    }
-
-    try {
-      const result = await db.runAsync(
-        `INSERT INTO personas (
-          id,
-          documento_persona,
-          nombre_persona,
-          apellido_persona,
-          fecha_nacimiento,
-          usuario_id,
-          email,
-          perfil_id,
-          rol_id
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-        [
-          persona.id,
-          persona.documento_persona,
-          persona.nombre_persona.trim(),
-          persona.apellido_persona.trim(),
-          persona.fecha_nacimiento,
-          persona.usuario_id,
-          persona.email,
-          persona.perfil_id,
-          persona.rol_id
-        ]
-      );
-      console.log('Insert OK', result);
-    } catch (error) {
-      console.error('DB Insert Error:', error);
-    }
-
-
-    const rows = await db.getAllAsync('SELECT * FROM personas');
+    const rows = await db.getAllAsync('SELECT * FROM users');
     console.log(rows);
   }
 
@@ -170,6 +102,8 @@ const LoginScreen = () => {
       try {
         const { token } = await loginAction('4331001', 'Mec2025*');
         setToken(token);
+
+        // testDB();
       } catch (error) {
         console.error('Login error:', error);
       } finally {
@@ -203,9 +137,9 @@ const LoginScreen = () => {
       setPersona(data.persona);
       setEspacios(data.espacios);
       setEspaciosPartes(data.espacios_partes);
+      // setOfertas(data.ofertas);
       setOfertas(data.ofertas_con_fiscalizacion);
-      console.log(JSON.stringify(data.persona, null, 2));
-      testDB(data.persona);
+      console.log('data:', data);
     } catch (error) {
       console.error('Error fetching persona:', error);
     } finally {
@@ -215,7 +149,7 @@ const LoginScreen = () => {
 
   return (
 
-    <ScrollView className="px-1 mt-1">
+    <ScrollView className="px-5 mt-2">
 
       {token && <Text style={{ fontSize: 18 }}>✅ Inicio de sesión correcto</Text>}
 
@@ -228,7 +162,7 @@ const LoginScreen = () => {
       </CustomButton>
 
       {persona && (
-        <View style={{ padding: 2, backgroundColor: "#f0f0f0", borderRadius: 8, marginBottom: 10 }}>
+        <View style={{ padding: 16, backgroundColor: "#f0f0f0", borderRadius: 8, marginBottom: 10 }}>
           <Text style={{ fontWeight: "bold", fontSize: 18, marginBottom: 8 }}>🧑 Datos de la Persona</Text>
 
           <View style={styles.card}>
@@ -273,7 +207,7 @@ const LoginScreen = () => {
       )}
 
       {espacios && (
-        <View style={{ padding: 2, backgroundColor: "#f0f0f0", borderRadius: 8, marginBottom: 10 }}>
+        <View style={{ padding: 16, backgroundColor: "#f0f0f0", borderRadius: 8, marginBottom: 10 }}>
           <Text style={{ fontWeight: "bold", fontSize: 18, marginBottom: 8 }}>Espacios</Text>
 
           <View style={styles.table}>
@@ -297,64 +231,102 @@ const LoginScreen = () => {
 
 
       {ofertas.length > 0 && (
-        <View style={{ padding: 2, backgroundColor: "#f0f0f0", borderRadius: 8, marginBottom: 10 }}>
+        <View style={{ padding: 16, backgroundColor: "#f0f0f0", borderRadius: 8, marginBottom: 10 }}>
           <Text style={{ fontWeight: "bold", fontSize: 18 }}>Relevamiento de Infraestructura</Text>
-
-          <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
-            <Text style={{ color: 'blue' }}>Mostrar filtros</Text>
-          </TouchableOpacity>
-
-          {showFilters && (
-            <View style={styles.filters}>
-              {/* Tus filtros aquí */}
-              <TextInput
-                placeholder="Departamento"
-                style={styles.input}
-                value={departamentoFilter}
-                onChangeText={setDepartamentoFilter}
-              />
-              <TextInput
-                placeholder="Distrito"
-                style={styles.input}
-                value={distritoFilter}
-                onChangeText={setDistritoFilter}
-              />
-              <TextInput
-                placeholder="Localidad/Barrio"
-                style={styles.input}
-                value={localidadFilter}
-                onChangeText={setLocalidadFilter}
-              />
-              <TextInput
-                placeholder="Código Establecimiento"
-                style={styles.input}
-                value={codigoFilter}
-                onChangeText={setCodigoFilter}
-              />
-              <TextInput
-                placeholder="Nombre Establecimiento"
-                style={styles.input}
-                value={nombreFilter}
-                onChangeText={setNombreFilter}
-              />
-            </View>
-          )}
-
 
           <View style={styles.table}>
             {/* Encabezado */}
+            <View style={[styles.row, styles.header]}>
+              <Text style={[styles.cell, styles.headerText]}>
+                Departamento
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.inputFilter}
+                    value={departamentoFilter}
+                    onChangeText={setDepartamentoFilter}
+                  />
+                  {departamentoFilter.length > 0 && (
+                    <TouchableOpacity onPress={() => setDepartamentoFilter("")}>
+                      <Ionicons name="close-circle" size={20} color="#888" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </Text>
+              <Text style={[styles.cell, styles.headerText]}>
+                Distrito
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.inputFilter}
+                    value={distritoFilter}
+                    onChangeText={setDistritoFilter}
+                  />
+                  {distritoFilter.length > 0 && (
+                    <TouchableOpacity onPress={() => setDistritoFilter("")}>
+                      <Ionicons name="close-circle" size={20} color="#888" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </Text>
+              <Text style={[styles.cell, styles.headerText]}>
+                Localidad/Barrio
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.inputFilter}
+                    value={localidadFilter}
+                    onChangeText={setLocalidadFilter}
+                  />
+                  {localidadFilter.length > 0 && (
+                    <TouchableOpacity onPress={() => setLocalidadFilter("")}>
+                      <Ionicons name="close-circle" size={20} color="#888" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </Text>
+              <Text style={[styles.cell, styles.headerText]}>
+                Código Establecimiento
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.inputFilter}
+                    value={codigoFilter}
+                    onChangeText={setCodigoFilter}
+                  />
+                  {codigoFilter.length > 0 && (
+                    <TouchableOpacity onPress={() => setCodigoFilter("")}>
+                      <Ionicons name="close-circle" size={20} color="#888" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </Text>
+              <Text style={[styles.cell, styles.headerText]}>
+                Nombre Establecimiento
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.inputFilter}
+                    value={nombreFilter}
+                    onChangeText={setNombreFilter}
+                  />
+                  {nombreFilter.length > 0 && (
+                    <TouchableOpacity onPress={() => setNombreFilter("")}>
+                      <Ionicons name="close-circle" size={20} color="#888" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </Text>
+              <Text style={[styles.cell, styles.headerText]}>Dirección</Text>
+              <Text style={[styles.cell, styles.headerText]}></Text>
+            </View>
 
             {/* Renderizar filas de la página actual */}
             {currentData?.map((item: any) => (
               <View key={item.id}>
-                <View style={styles.card}>
-                  <Text style={styles.label}>{item.departamento}</Text>
-                  <Text style={styles.label}>{item.distrito}</Text>
-                  <Text style={styles.label}>{item.localidad}</Text>
-                  <Text style={styles.label}>{item.codigo_establecimiento}</Text>
-                  <Text style={styles.label}>{item.nombre_establecimiento}</Text>
-                  <Text style={styles.label}>{item.direccion}</Text>
-                  <View>
+                <View style={styles.row}>
+                  <Text style={styles.cell}>{item.departamento}</Text>
+                  <Text style={styles.cell}>{item.distrito}</Text>
+                  <Text style={styles.cell}>{item.localidad}</Text>
+                  <Text style={styles.cell}>{item.codigo_establecimiento}</Text>
+                  <Text style={styles.cell}>{item.nombre_establecimiento}</Text>
+                  <Text style={styles.cell}>{item.direccion}</Text>
+                  <View style={styles.cell}>
                     <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
                       <TouchableOpacity onPress={() => toggleFiscalizacion(item.id)}>
                         <Ionicons name="eye-outline" size={20} />
@@ -658,9 +630,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
-    padding: 6,
+    padding: 12,
     backgroundColor: "#fff",
-    margin: 4,
+    margin: 16,
     elevation: 2, // para sombra en Android
     shadowColor: "#000", // para sombra en iOS
     shadowOffset: { width: 0, height: 2 },
@@ -688,7 +660,7 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 6,
     overflow: "hidden",
-    margin: 2,
+    margin: 16,
     backgroundColor: "#fff",
   },
   row: {
