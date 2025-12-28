@@ -12,6 +12,7 @@ import {
 const queryClient = new QueryClient()
 
 
+import PermissionsCheckerProvider from '@/presentation/providers/PermissionsCheckerProvider'
 import "./global.css"
 
 SplashScreen.preventAutoHideAsync()
@@ -36,9 +37,11 @@ const RootLayout = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <Slot />
-      </GestureHandlerRootView>
+      <PermissionsCheckerProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <Slot />
+        </GestureHandlerRootView>
+      </PermissionsCheckerProvider>
     </QueryClientProvider>
   );
 }
